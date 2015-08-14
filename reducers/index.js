@@ -1,10 +1,10 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from "redux";
 import {
   SELECT_REDDIT, INVALIDATE_REDDIT,
-  REQUEST_POSTS, RECEIVE_POSTS
-} from '../actions';
+  REQUEST_POSTS, RECEIVE_POSTS, FAILURE_POSTS
+} from "../actions";
 
-function selectedReddit(state = 'reactjs', action) {
+function selectedReddit(state = "reactjs", action) {
   switch (action.type) {
     case SELECT_REDDIT:
       return action.reddit;
@@ -35,6 +35,13 @@ function posts(state = {
         items: action.posts,
         lastUpdated: action.receivedAt
       });
+    case FAILURE_POSTS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        didInvalidate: false,
+        items: [],
+        error: action.error
+      })
     default:
       return state;
   }
@@ -45,6 +52,7 @@ function postsByReddit(state = {}, action) {
     case INVALIDATE_REDDIT:
     case RECEIVE_POSTS:
     case REQUEST_POSTS:
+    case FAILURE_POSTS:
       return Object.assign({}, state, {
         [action.reddit]: posts(state[action.reddit], action)
       });

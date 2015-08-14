@@ -16,7 +16,7 @@ class AsyncApp extends Component {
     dispatch(fetchPostsIfNeeded(selectedReddit));
   }
 
-  componentWillRecevieProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectedReddit !== this.props.selectedReddit) {
       const { dispatch, selectedReddit } = nextProps;
       dispatch(fetchPostsIfNeeded(selectedReddit));
@@ -36,17 +36,17 @@ class AsyncApp extends Component {
   }
 
   render() {
-    const { selectedReddit, posts, isFetching, lastUpdated } = this.props;
-
+    const { selectedReddit, posts, isFetching, lastUpdated, error } = this.props;
+    console.log("ERROR:", error);
     return(
       <div>
         <Picker value={selectedReddit}
                 onChange={this.handleChange}
-                options={['reactjs', 'frontend']} />
+                options={['reactjs', 'frontend', 'relay', 'fjda;js']} />
         <p>
           {lastUpdated &&
             <span>
-              Last updated at {new Date(lastUpdated)}.toLocalTimeString()}.
+              Last updated at {lastUpdated}.
               {' '}
             </span>
           }
@@ -62,6 +62,9 @@ class AsyncApp extends Component {
         }
         {!isFetching && posts.length === 0 &&
           <h2>Empty.</h2>
+        }
+        {!isFetching && error &&
+          <h2>{error}</h2>
         }
         {posts.length > 0 &&
           <div style={{ opacity: isFetching ? 0.5 : 1 }}>
@@ -82,7 +85,7 @@ AsyncApp.PropTypes = {
 };
 
 function mapStateToProps(state) {
-  const { selectedReddit, postsByReddit } = state;
+  const { postsByReddit, selectedReddit } = state;
 
   const {
     isFetching,

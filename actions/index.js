@@ -1,7 +1,8 @@
-import fetch from 'isomorphic-fetch';
+import fetch from "isomorphic-fetch";
 
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 export const RECEIVE_POSTS = 'RECEIVE_POSTS';
+export const FAILURE_POSTS = 'FAILURE_POSTS';
 export const SELECT_REDDIT = 'SELECT_REDDIT';
 export const INVALIDATE_REDDIT = 'INVALIDATE_REDDIT';
 
@@ -26,27 +27,45 @@ function requestPosts(reddit) {
   };
 }
 
-
 function receivePosts(reddit, json) {
   return {
     type: RECEIVE_POSTS,
     reddit: reddit,
     posts: json.data.children,
-    recdeiveAt: Date.now()
+    receivedAt: Date.now()
   };
 }
 
+function failurePosts(reddit, error) {
+  return {
+    type: FAILURE_POSTS,
+    reddit: reddit,
+    error: error
+  }
+}
 function fetchPosts(reddit) {
   return dispatch => {
     dispatch(requestPosts(reddit));
     return fetch(`http://www.reddit.com/r/${reddit}.json`)
-      .then(req => req.json())
-      .then(json => dispatch(receivePosts(reddit, json)));
+      .then(res => {
+        if (res.status >= 400) {
+          throw new Error("Failed to retreive");
+        }
+        return res.json();
+      })
+      .then(json => {
+        return dispatch(receivePosts(reddit, json));
+      })
+      .catch(error => {
+        console.log('ERRORR');
+        return dispatch(failurePosts(reddit, error));
+      });
   };
 }
 
 function shouldFetchPosts(state, reddit) {
   const posts = state.postsByReddit[reddit];
+
   if (!posts) {
     return true;
   } else if (posts.isFetching) {
