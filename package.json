@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js --progress --profile --colors",
-    "start": "webpack-dev-server --progress --profile --colors --watch"
+    "start": "webpack-dev-server --config webpack.config.js --progress --profile --colors --watch --content-base public/"
   },
   "author": "",
   "license": "ISC",
